@@ -94,6 +94,9 @@
     }
     
     function flush() {
+       gl.enable(gl.BLEND);
+             gl.disable(gl.DEPTH_TEST);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
       gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -105,9 +108,9 @@
       var len = parseInt(vertices.length/2, 10);
       for (var i=0; i < len; i++) {
         colours.push(
-                1.0, 0.0, 0.0, 1.0,
-                0.0, 1.0, 0.0, 1.0,
-                0.0, 0.0, 1.0, 1.0
+                1.0, 0.0, 0.0, 0.1,
+                0.0, 1.0, 0.0, 0.5,
+                0.0, 0.0, 1.0, 0.2
         );
       }
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);

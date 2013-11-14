@@ -11,11 +11,11 @@ module.exports = function (grunt) {
     // concat options 
     concat: {
       options: {  
-        separator: ';' // separates scripts
+        separator: '' // separates scripts
       },
       dist: {
         src: ['src/utils.js', 'src/render.js', 'src/main.js'],
-        dest: 'js/script.js' // where to output script
+        dest: 'dist/script.js' // where to output script
       }
     },
     
@@ -23,7 +23,7 @@ module.exports = function (grunt) {
     uglify: {
       js: {
         files: {
-          'js/script.js': ['js/script.js'] // overwrite the concat script 
+          'dist/script.min.js': ['dist/script.js'] // overwrite the concat script 
         }
       }
     }
@@ -34,4 +34,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');  
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-}
+  grunt.registerTask('default', ['jshint','concat', 'uglify']);
+  
+} 
