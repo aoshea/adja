@@ -1,3 +1,3 @@
 adja
 ====
-Here's fun.
+Experiment with WebGL, particles and cloth simulation.
