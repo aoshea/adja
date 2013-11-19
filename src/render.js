@@ -8,7 +8,17 @@
   
   root.render = (function () {
     
-    var gl, shaderProgram, canvasWidth, canvasHeight, vertices, colours, vertexBuffer, colourBuffer, vertexPosAttrib, vertexColourAttrib;
+    var gl, 
+        shaderProgram, 
+        canvasWidth, 
+        canvasHeight, 
+        vertices, 
+        lineVertices,
+        colours, 
+        vertexBuffer, 
+        colourBuffer, 
+        vertexPosAttrib, 
+        vertexColourAttrib;
     
     function createShader(gl, shaderScript, src) {
       var shader;
@@ -81,6 +91,17 @@
     function setRect(x, y, width, height) {
       var x1 = x + width, y1 = y + height;
       vertices.push(x, y, x1, y, x, y1, x, y1, x1, y, x1, y1);
+      
+      var scale = y / gl.canvas.height;
+
+      colours.push(
+              1.0, 0.0, 0.0, scale,
+              0.0, 1.0, 0.0, scale,
+              0.0, 1.0, 1.0, scale,
+              0.0, 1.0, 1.0, scale,              
+              0.0, 1.0, 0.0, scale,
+              1.0, 0.0, 0.0, scale                      
+      );
     }
     
     function drawRect(x, y, width, height) {
@@ -88,14 +109,19 @@
       setRect(x, y, width, height);
     }
     
+    function drawLine(x0, y0, x1, y1) {
+      lineVertices.push(x0, y0, x1, y1);
+    }
+    
     function clear() {
       vertices = [];
+      lineVertices = [];
+      colours = [];
       gl.clear(gl.COLOR_BUFFER_BIT);
     }
     
     function flush() {
-       gl.enable(gl.BLEND);
-             gl.disable(gl.DEPTH_TEST);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
       gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
@@ -103,19 +129,19 @@
       
       gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
       gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
-  
-      colours = [];
-      var len = parseInt(vertices.length/2, 10);
-      for (var i=0; i < len; i++) {
-        colours.push(
-                1.0, 0.0, 0.0, 0.1,
-                0.0, 1.0, 0.0, 0.5,
-                0.0, 0.0, 1.0, 0.2
-        );
-      }
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);
       
-      gl.drawArrays(gl.TRIANGLES, 0, parseInt(vertices.length/2, 10));            
+      gl.drawArrays(gl.TRIANGLES, 0, parseInt(vertices.length/2, 10));   
+      
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+      gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineVertices), gl.STATIC_DRAW);
+      
+      gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
+      gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);   
+      
+      gl.drawArrays(gl.LINES, 0, parseInt(lineVertices.length/2, 10));         
     }
     
     function createBuffer() {
@@ -131,13 +157,17 @@
       // create buffer
       vertexBuffer = gl.createBuffer();
       colourBuffer = gl.createBuffer();
+      
+      gl.enable(gl.BLEND);
+      gl.disable(gl.DEPTH_TEST);
     }
     
     return {
       init: init,
       clear: clear,
       flush: flush,
-      drawRect: drawRect
+      drawRect: drawRect,
+      drawLine: drawLine
     };    
   })();
   
