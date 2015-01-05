@@ -341,7 +341,7 @@
       var p, i, len = this.numParticles;
       for(i = 0; i < len; ++i) {
         p = this.particles[i];
-        var size = 10;
+        var size = 4;
         render.drawRect(p.x-size/2, p.y-size/2, size, size);
       }
     },
