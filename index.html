@@ -55,6 +55,11 @@
   uniform vec2 u_resolution;
   
   varying lowp vec4 v_colour;
+  varying lowp vec2 v_pos;
+  //varying lowp vec2 v_resoluion;
+  
+  varying lowp vec2 nnn;
+  
 
   void main() {
      // convert the rectangle from pixels to 0.0 to 1.0
@@ -69,20 +74,30 @@
      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
      
      v_colour = a_colour;
+     v_pos = a_position;
+     //v_resolution = vec2(0.0,0.0);
+     nnn = u_resolution;
   }
 </script>
 <script id="2d-fragment-shader" type="x-shader/x-fragment">  
   precision mediump float;
 
   varying lowp vec4 v_colour;
+  varying lowp vec2 v_pos;
+  varying lowp vec2 nnn;
 
   void main() {
-     gl_FragColor = v_colour;
+    vec2 st = gl_FragCoord.xy / nnn.xy;
+    vec3 colour = v_colour.rgb;
+    
+    vec3 cc = colour * vec3(st.x, st.y, 0.0);
+    
+    gl_FragColor = vec4(gl_FragCoord.xy, 0.5, 1.0);
   }
 </script>  
 </head>
 <body>
 <canvas id="canvas" width="1366" height="480"></canvas>
-<script src="dist/script.min.js"></script>
+<script src="dist/script.js"></script>
 </body>
 </html>

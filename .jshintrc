@@ -1,0 +1,22 @@
+{
+  "bitwise": true,
+  "browser": true,
+  "curly": false,
+  "eqeqeq": true,
+  "eqnull": true,
+  "esnext": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "node": true,
+  "strict": false,
+  "trailing": true,
+  "debug": true,
+  "indent": 2,
+  "smarttabs": false,
+  "globals": {
+    "angular": false
+  }
+}
+
