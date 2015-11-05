@@ -286,8 +286,10 @@ var Game = {
   },
   
   handleResize: function () {      
-    this.canvas.width = document.documentElement.clientWidth;
-    this.canvas.height = document.documentElement.clientHeight;
+    var w, h;
+    w = this.canvas.width = document.documentElement.clientWidth;
+    h = this.canvas.height = document.documentElement.clientHeight;
+    render.resize(w, h);
   }
 };
 

@@ -44,8 +44,8 @@ function createBuffer() {
   vertexBuffer = gl.createBuffer();
   colourBuffer = gl.createBuffer();
 
-  //gl.enable(gl.BLEND);
-  //gl.disable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.disable(gl.DEPTH_TEST);
 }
 
 
@@ -138,7 +138,8 @@ function init(canvas) {
 
 function setMouse(x,y){
   u_mouse.x = x / gl.canvas.width;
-  u_mouse.y = y / gl.canvas.height;  
+  u_mouse.y = y / gl.canvas.height;
+  u_mouse.y = -u_mouse.y;
 }
 
 function setRect(x, y, width, height) {
@@ -173,15 +174,21 @@ function clear() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 }
 
+function resize(width, height) {
+  canvasWidth = width;
+  canvasHeight = height;
+}
+
 function flush() {
   
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   
   var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
   gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
-  
-  
-  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  var resolutionLocation = gl.getUniformLocation(shaderProgram, 'u_resolution');
+  gl.uniform2f(resolutionLocation, canvasWidth, canvasHeight);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
@@ -215,5 +222,6 @@ module.exports = {
   flush: flush,
   drawRect: drawRect,
   drawLine: drawLine,
-  setMouse: setMouse
+  setMouse: setMouse,
+  resize: resize
 }; 

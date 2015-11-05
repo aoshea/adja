@@ -6,3 +6,4 @@
 # Generated files #
 ######################
 node_modules
+.map
