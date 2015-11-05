@@ -188,13 +188,14 @@ function flush() {
   var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
   gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
   
-  timer += 0.01;
+  timer += 0.1;
   var timeLocation = gl.getUniformLocation(shaderProgram, 'u_time');
   gl.uniform1f(timeLocation, timer);
 
   var resolutionLocation = gl.getUniformLocation(shaderProgram, 'u_resolution');
   gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
-
+  
+  /*
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -203,7 +204,8 @@ function flush() {
   gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);
   
-  gl.drawArrays(gl.TRIANGLES, 0, parseInt(vertices.length/2, 10)); 
+  gl.drawArrays(gl.POINTS, 0, parseInt(vertices.length/2, 10)); 
+  */
   
   gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
   gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);

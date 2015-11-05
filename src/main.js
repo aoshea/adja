@@ -147,8 +147,11 @@ var Game = {
   },
   
   updateMouse: function () {
-    if (this.mouseDown) {
-      this.applyForceFrom(this.mouseX, this.mouseY, -1);
+    if (this.mouseDown && this.tempP) {
+      //this.applyForceFrom(this.mouseX, this.mouseY, -1);
+      this.tempP.x = this.mouseX;
+      this.tempP.y = this.mouseY;
+      this.tempP.ax = this.tempP.ay = 0;
     }
   },
   
@@ -273,15 +276,22 @@ var Game = {
     this.mouseY = y / scaleY;
     
     render.setMouse(this.mouseX, this.mouseY);
+    
+    return {
+      x: this.mouseX,
+      y: this.mouseY
+    };
   },
   
   handleMouseDown: function (e) {
     this.mouseDown = true;  
-    this.setMousePosition(e.pageX, e.pageY); 
+    var p = this.setMousePosition(e.pageX, e.pageY); 
+    this.tempP = this.getNearestParticle(p.x, p.y);
   },
   
   handleMouseUp: function () {
     this.mouseDown = false;
+    this.tempP = null;
   },
   
   handleMouseMove: function (e) {
