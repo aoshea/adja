@@ -37,8 +37,8 @@ function createBuffer() {
   var resolutionLocation = gl.getUniformLocation(shaderProgram, 'u_resolution');
   gl.uniform2f(resolutionLocation, canvasWidth, canvasHeight);
   
-  //var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
-  //gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
+  var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
+  gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
 
   // create buffer
   vertexBuffer = gl.createBuffer();
@@ -54,9 +54,7 @@ function loadShaders( shaders, callback ) {
 
   var queue = 0;
   
-  function loadHandler( name, req ) {
-    console.log('loaded', name);
-    
+  function loadHandler( name, req ) {    
     return function () {      
       shaders[name] = req.responseText;
       if ( --queue <= 0 ) callback();
@@ -67,8 +65,6 @@ function loadShaders( shaders, callback ) {
   
     queue++;
     
-    console.log('add to queue');
-  
     var req = new XMLHttpRequest();
     req.onload = loadHandler( name, req );
     req.open( 'get', 'glsl/' + name + '.glsl', true);
@@ -113,9 +109,7 @@ function createProgram( vertexSrc, fragmentSrc ) {
   return program;  
 }
 
-function setupShaders() {
-  console.log('seupthshader', shaderSource);
-  
+function setupShaders() {  
   shaderProgram = createProgram(shaderSource.vertex, shaderSource.fragment);
   gl.useProgram(shaderProgram);
   
@@ -140,14 +134,11 @@ function init(canvas) {
   }
   
   loadShaders(shaderSource, setupShaders);
-    
-  //initShaders(gl, '2d-fragment-shader', '2d-vertex-shader');
-  //createBuffer();
 }
 
 function setMouse(x,y){
-  u_mouse.x = x;
-  u_mouse.y = y;  
+  u_mouse.x = x / gl.canvas.width;
+  u_mouse.y = y / gl.canvas.height;  
 }
 
 function setRect(x, y, width, height) {
@@ -186,8 +177,9 @@ function flush() {
   
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   
-  //var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
-  //gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
+  var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
+  gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
+  
   
   //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 

@@ -90,8 +90,7 @@ gulp.task('watch', function () {
   livereload.listen();  
   gulp.watch(sources.allcss, ['css']);
   gulp.watch(sources.js, ['js']);
-  gulp.watch('glsl/*', ['js']);
-  gulp.watch('**/*').on('change', livereload.changed);
+  gulp.watch(dir.build + '**/*').on('change', livereload.changed);
 });
 
 /**
