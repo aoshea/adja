@@ -87,10 +87,11 @@ gulp.task('js', ['lint'], function () {
  */
 gulp.task('watch', function () {
 
-  livereload.listen();
+  livereload.listen();  
   gulp.watch(sources.allcss, ['css']);
   gulp.watch(sources.js, ['js']);
-  gulp.watch(dir.build + '**/*').on('change', livereload.changed);
+  gulp.watch('glsl/*', ['js']);
+  gulp.watch('**/*').on('change', livereload.changed);
 });
 
 /**

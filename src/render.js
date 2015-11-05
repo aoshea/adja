@@ -1,5 +1,20 @@
 'use strict';
     
+// Shaders 
+var shaderSource = {
+  vertex: '',
+  fragment: '',
+};
+
+var stats = {
+  isReady: false
+};
+
+var u_mouse = {
+  x:0,
+  y:0
+};
+
 var gl, 
     shaderProgram, 
     canvasWidth, 
@@ -21,6 +36,9 @@ function createBuffer() {
 
   var resolutionLocation = gl.getUniformLocation(shaderProgram, 'u_resolution');
   gl.uniform2f(resolutionLocation, canvasWidth, canvasHeight);
+  
+  //var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
+  //gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
 
   // create buffer
   vertexBuffer = gl.createBuffer();
@@ -29,53 +47,81 @@ function createBuffer() {
   //gl.enable(gl.BLEND);
   //gl.disable(gl.DEPTH_TEST);
 }
-function createShader(gl, shaderScript, src) {
-  var shader;
-  if (shaderScript.type === 'x-shader/x-fragment') {
-    shader = gl.createShader(gl.FRAGMENT_SHADER);
-  } else if (shaderScript.type === 'x-shader/x-vertex') {
-    shader = gl.createShader(gl.VERTEX_SHADER);
-  } else {
-    return null;
+
+
+// Load glsl code into shaders object 
+function loadShaders( shaders, callback ) {
+
+  var queue = 0;
+  
+  function loadHandler( name, req ) {
+    console.log('loaded', name);
+    
+    return function () {      
+      shaders[name] = req.responseText;
+      if ( --queue <= 0 ) callback();
+    }
   }
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.warn('Error compiling shaders ' + gl.getShaderInfoLog(shader));
-    return null;
+
+  for(var name in shaders) {
+  
+    queue++;
+    
+    console.log('add to queue');
+  
+    var req = new XMLHttpRequest();
+    req.onload = loadHandler( name, req );
+    req.open( 'get', 'glsl/' + name + '.glsl', true);
+    req.send();
+  
   }
+}
+
+// Create and compile shader from source 
+function createShader( source, type ) {
+
+  var shader = gl.createShader( type );
+
+  gl.shaderSource( shader, source );
+  gl.compileShader( shader );
+
+  if ( !gl.getShaderParameter( shader, gl.COMPILE_STATUS) ) {
+    throw gl.getShaderInfoLog( shader );
+  }
+
   return shader;
 }
 
-function getShader(gl, id) {
-  var shaderScript, src, currentChild;      
-  shaderScript = document.getElementById(id);
-  if (!shaderScript) return null;
-  
-  src = '';
-  currentChild = shaderScript.firstChild;
-  while(currentChild) {
-    if (currentChild.nodeType === currentChild.TEXT_NODE) {
-      src += currentChild.textContent;
-    }
-    currentChild = currentChild.nextSibling;
+// Create shader program and create & link shaders 
+function createProgram( vertexSrc, fragmentSrc ) {
+
+  var vertexShader, fragmentShader, program;
+
+  vertexShader = createShader( vertexSrc, gl.VERTEX_SHADER ),
+  fragmentShader = createShader( fragmentSrc, gl.FRAGMENT_SHADER );
+
+  program = gl.createProgram();
+ 
+  gl.attachShader( program, fragmentShader );
+  gl.attachShader( program, vertexShader );
+  gl.linkProgram( program );
+
+  if ( !gl.getProgramParameter( program, gl.LINK_STATUS) ) {
+    throw gl.getProgramInfoLog( program );
   }
-  
-  return createShader(gl, shaderScript, src);
+    
+  return program;  
 }
 
-function initShaders(gl, fragmentId, vertexId) {
-  var fragmentShader = getShader(gl, fragmentId),
-      vertexShader   = getShader(gl, vertexId);
-      
-  shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.linkProgram(shaderProgram);
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-    throw new Error('Unable to initialize shader program');
-  }
-  gl.useProgram(shaderProgram);    
+function setupShaders() {
+  console.log('seupthshader', shaderSource);
+  
+  shaderProgram = createProgram(shaderSource.vertex, shaderSource.fragment);
+  gl.useProgram(shaderProgram);
+  
+  createBuffer();
+  
+  stats.isReady = true;
 }
 
 function init(canvas) {
@@ -92,9 +138,16 @@ function init(canvas) {
     console.warn('Unable to initialise WebGL');
     return;
   }
+  
+  loadShaders(shaderSource, setupShaders);
     
-  initShaders(gl, '2d-fragment-shader', '2d-vertex-shader');
-  createBuffer();
+  //initShaders(gl, '2d-fragment-shader', '2d-vertex-shader');
+  //createBuffer();
+}
+
+function setMouse(x,y){
+  u_mouse.x = x;
+  u_mouse.y = y;  
 }
 
 function setRect(x, y, width, height) {
@@ -130,8 +183,14 @@ function clear() {
 }
 
 function flush() {
+  
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  
+  //var mouseLocation = gl.getUniformLocation(shaderProgram, 'u_mouse');
+  //gl.uniform2f(mouseLocation, u_mouse.x, u_mouse.y);
+  
+  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -140,25 +199,29 @@ function flush() {
   gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);
   
-  gl.drawArrays(gl.TRIANGLES, 0, parseInt(vertices.length/2, 10));   
+  gl.drawArrays(gl.TRIANGLES, 0, parseInt(vertices.length/2, 10)); 
+  
+  gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
+  gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW); 
   
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);  
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineVertices), gl.STATIC_DRAW);
-  
-  gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
-  gl.vertexAttribPointer(vertexColourAttrib, 4, gl.FLOAT, false, 0, 0);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);   
-  
-  gl.drawArrays(gl.LINES, 0, parseInt(lineVertices.length/2, 10));         
+    
+  gl.drawArrays(gl.LINES, 0, lineVertices.length / 2)
 }
 
 
     
 module.exports = {
+  ready: function () {
+    return stats.isReady;
+  },
   init: init,
   clear: clear,
   flush: flush,
   drawRect: drawRect,
-  drawLine: drawLine
+  drawLine: drawLine,
+  setMouse: setMouse
 }; 

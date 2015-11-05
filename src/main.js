@@ -10,7 +10,10 @@ var raf   = utils.requestAnimFrame;
   
 var Constants = {  
   FRICTION: 0.975,  
-  GRAVITY: 1.1
+  GRAVITY: 1.1,
+  MAX_PARTICLES: 2000,  
+  CURTAIN_COLS: 80,  
+  CURTAIN_ROWS: 18  
 };
 
 var Particle = {        
@@ -101,13 +104,6 @@ var Game = {
   REST: 12,
   
   BOUNDARY: { x0: 0, x1: 480, y0:0, y1: 320 },
-
-  MAX_PARTICLES: 910,
-  
-  CURTAIN_COLS: 70,
-  
-  CURTAIN_ROWS: 12,
-
   
   init: function () {
     this.canvas = document.getElementById('canvas');
@@ -175,14 +171,20 @@ var Game = {
   },
   
   tick: function () {
+    raf(proxy(this.tick, this));
+
+    if (!render.ready()) {
+      return;
+    }  
+    
     this.update();
     this.draw();
-    raf(proxy(this.tick, this));
+    
   },
   
   reset: function () {      
     this.createParticles();
-    this.createCurtain(Game.CURTAIN_COLS, Game.CURTAIN_ROWS);
+    this.createCurtain(Constants.CURTAIN_COLS, Constants.CURTAIN_ROWS);
   },
 
   randInRange: function(range) {
@@ -190,7 +192,7 @@ var Game = {
   },
   
   createParticles: function () {
-    var p, i, len = Game.MAX_PARTICLES;
+    var p, i, len = Constants.MAX_PARTICLES;
     this.particles = [];
     for(i = 0; i < len; ++i) {
       p = Object.create(Particle);
@@ -266,6 +268,8 @@ var Game = {
         
     this.mouseX = x / scaleX;
     this.mouseY = y / scaleY;
+    
+    render.setMouse(this.mouseX, this.mouseY);
   },
   
   handleMouseDown: function (e) {
