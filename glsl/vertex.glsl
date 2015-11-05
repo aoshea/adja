@@ -1,3 +1,5 @@
+precision mediump float;
+
 attribute vec2 a_position;
 attribute vec4 a_colour;
 
@@ -5,10 +7,6 @@ uniform vec2 u_resolution;
 
 varying lowp vec4 v_colour;
 varying lowp vec2 v_pos;
-//varying lowp vec2 v_resoluion;
-
-varying lowp vec2 nnn;
-
 
 void main() {
    // convert the rectangle from pixels to 0.0 to 1.0
@@ -24,6 +22,4 @@ void main() {
    
    v_colour = a_colour;
    v_pos = a_position;
-   //v_resolution = vec2(0.0,0.0);
-   nnn = u_resolution;
 }

@@ -101,22 +101,25 @@ var Constraint = {
 
 var Game = {
   
-  REST: 12,
+  REST: 24,
   
   BOUNDARY: { x0: 0, x1: 480, y0:0, y1: 320 },
   
   init: function () {
     this.canvas = document.getElementById('canvas');
-    this.originalWidth = this.canvas.width;
-    this.originalHeight = this.canvas.height;
+        
+    this.originalWidth = this.canvas.clientWidth;
+    this.originalHeight = this.canvas.clientHeight;
+    
     render.init(this.canvas);  
+    this.handleResize();
+    
     this.reset();
     document.onmousemove = proxy(this.handleMouseMove, this);
     document.onmousedown = proxy(this.handleMouseDown, this);
     document.onmouseup = proxy(this.handleMouseUp, this);
     window.addEventListener('resize', proxy(this.handleResize, this));
     raf(proxy(this.tick, this));
-    this.handleResize();
   },
   
   draw: function () {
@@ -286,10 +289,11 @@ var Game = {
   },
   
   handleResize: function () {      
-    var w, h;
-    w = this.canvas.width = document.documentElement.clientWidth;
-    h = this.canvas.height = document.documentElement.clientHeight;
-    render.resize(w, h);
+        
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    
+    render.resize(this.canvas.width, this.canvas.height);
   }
 };
 
